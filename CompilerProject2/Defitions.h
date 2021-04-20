@@ -40,7 +40,7 @@ const vector<string> KEY_WORDS = {
     "Octal_Number", //八进制
     "String_Constant",
     
-    "if", "else", "while", "for", "else if","break",
+    "if", "else", "while", "for", "else if","break", "continue",
     "get", "put",
     "true", "false"
     

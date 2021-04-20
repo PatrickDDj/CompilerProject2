@@ -12,7 +12,6 @@
 int main(int argc, const char * argv[]) {
     
     GrammarAnalyzer grammar("p2.txt");
-
     grammar.grammer_analysis();
     grammar.print_AST();
     

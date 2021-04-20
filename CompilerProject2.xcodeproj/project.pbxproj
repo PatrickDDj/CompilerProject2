@@ -28,6 +28,7 @@
 		D660C48A262C1B9E004B2F0D /* Defitions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Defitions.h; sourceTree = "<group>"; };
 		D660C48B262C1B9E004B2F0D /* LexicalAnalyzer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.h; fileEncoding = 4; path = LexicalAnalyzer.h; sourceTree = "<group>"; };
 		D660C48C262C1C63004B2F0D /* GrammarAnalyzer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.h; path = GrammarAnalyzer.h; sourceTree = "<group>"; };
+		D6B8D0FC262DB6EE00E43836 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		D6C3818F262C27AE0062761C /* p2.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = p2.txt; sourceTree = "<group>"; };
 		D6C38190262C27AE0062761C /* p1.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = p1.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -62,6 +63,7 @@
 		D660C481262C1B82004B2F0D /* CompilerProject2 */ = {
 			isa = PBXGroup;
 			children = (
+				D6B8D0FC262DB6EE00E43836 /* README.md */,
 				D6C38190262C27AE0062761C /* p1.txt */,
 				D6C3818F262C27AE0062761C /* p2.txt */,
 				D660C48A262C1B9E004B2F0D /* Defitions.h */,
