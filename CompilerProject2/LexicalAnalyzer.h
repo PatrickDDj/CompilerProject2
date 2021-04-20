@@ -43,7 +43,7 @@ public:
             int id = i.second;
             printf("[%s]-[%s] : < %s  %d >\n", word_info[1].c_str(), word_info[2].c_str(), word_info[0].c_str(), id);
             
-            //get the word_type("Identifier", ...) through KEY_WORDS[id-1]
+            //get the word_type("Id", ...) through KEY_WORDS[id-1]
             word_type_count[KEY_WORDS[id-1]]++;
         }
         printf("\n\n");
@@ -160,7 +160,7 @@ private:
         
     }
 
-    void check_identifier(){
+    void check_Id(){
         int n = 1;
         
         //for checking "else if"
@@ -178,7 +178,7 @@ private:
         int key_id = KEY_WORDS_MAP[id];
         
         lex_result.push_back(make_pair(vector<string>{id, row_col(row, col),
-            row_col(row, col+n-1)}, (key_id==0 ? KEY_WORDS_MAP["Identifier"]:key_id)));
+            row_col(row, col+n-1)}, (key_id==0 ? KEY_WORDS_MAP["Id"]:key_id)));
         
         cur += n;
         col += n;
@@ -194,12 +194,12 @@ private:
             n++;
         }
         
-        //unqualified identifier like '3aa'
+        //unqualified Id like '3aa'
         if(is_letter(code[cur+n])){
             while(!is_operator(code[cur+n]) && !is_space(code[cur+n])){
                 n++;
             }
-            printf("[ERROR] unqualified identifier '%s' at row [%d] col[%d-%d]\n", code.substr(cur, n).c_str() ,row, col, col+n-1);
+            printf("[ERROR] unqualified Id '%s' at row [%d] col[%d-%d]\n", code.substr(cur, n).c_str() ,row, col, col+n-1);
         }
         else{
             num = code.substr(cur, n);
@@ -327,9 +327,9 @@ private:
                 check_space();
             }
             
-            //handle identifier or key word
+            //handle Id or key word
             else if(is_letter(c)){
-                check_identifier();
+                check_Id();
             }
             
             
