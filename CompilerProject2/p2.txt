@@ -1,6 +1,7 @@
-int main{
-    int a, b=3*(1+2);
-    a += 1;
+int main(){
+    int a, b=3*(11+2);
+    a--;
+    
     a++;
     get(a);
     if(a==1){
@@ -10,11 +11,18 @@ int main{
         a = 012;
     }
     else{
-        while(a <= 10){
-            a = 3*(a+1)/4;
-        }
+        a = 0x123A;
     }
+    while(a <= 10){
+        a = 3*(a+1)/4;
+        break;
+    }
+    do{
+        a--;
+    }
+    while(a>0);
     put(a+b);
     return (0);
+   }
 
-}
+

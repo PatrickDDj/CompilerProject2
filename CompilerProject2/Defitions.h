@@ -13,10 +13,11 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <algorithm>
 
 using namespace std;
 
-const int node_format_length = 2;
+
 const vector<string> KEY_WORDS = {
     "main", "include", "void", "return",
     "int", "bool", "float", "double","char","string",
@@ -40,7 +41,7 @@ const vector<string> KEY_WORDS = {
     "Octal_Number", //八进制
     "String_Constant",
     
-    "if", "else", "while", "for", "else if","break", "continue",
+    "if", "else", "while", "for", "else if","break", "continue", "do",
     "get", "put",
     "true", "false"
     

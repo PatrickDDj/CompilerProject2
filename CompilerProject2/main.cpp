@@ -6,12 +6,14 @@
 //
 
 #include "GrammarAnalyzer.h"
-
+#include "LexicalAnalyzer.h"
 
 
 int main(int argc, const char * argv[]) {
     
-    GrammarAnalyzer grammar("p2.txt");
+    LexicalAnalyzer lex("p2.txt");
+    
+    GrammarAnalyzer grammar(lex.lex_result);
     grammar.grammer_analysis();
     grammar.draw_AST();
     

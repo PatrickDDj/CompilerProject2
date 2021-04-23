@@ -5,35 +5,38 @@
 //  Created by PatrickDD on 2021/4/18.
 //
 
-#include "LexicalAnalyzer.h"
+#include "Defitions.h"
 
 #ifndef GrammarAnalyzer_h
 #define GrammarAnalyzer_h
 
-// Program -> int main Block
+// Program -> int main() Block
 // Block -> { Stmts }
 // Stmts -> Stmt Stmts | Empty
-// Stmt -> Asig ; | Decl ; | break ; | continue; | DO_WHILE | IF | WHILE |
+// Stmt -> Asig_E ; | Decl ; | break ; | continue; | DO_WHILE | IF | WHILE | DO_WHILE ;
 //                      GET ; | PUT ; | Asig_C ; | Asig_S ; | RETURN ;
 // IF -> if ( Bool ) Block |
-//       if ( Bool ) Block else Block |
-//       if ( Bool ) Block ELSE_IF else Block
-// ELSE_IF -> else if ( Bool ) Block ELSE_IF | Empty
+//       if ( Bool ) Block ELSE |
+//       if ( Bool ) Block ELSE_IF ELSE
+// ELSE_IF -> else if ( Bool ) Block | else if ( Bool ) Block ELSE_IF
+// ELSE -> else Block
+// WHILE -> while ( Bool ) Block
+// DO_WHILE -> do Block while ( Bool ) ;
 // RETURN -> return Expr
 // Asig_C -> Id Asig_Op Expr
 // Asig_S -> Id ++ | Id --
+// Asig_E -> Id = Expr
 // GET -> get ( Id )
 // PUT -> put ( Expr )
-// Asig -> Id = Expr
 // Decl -> Type Descs
 // Descs -> Desc | Desc , Descs
-// Desc -> Id | Asig
+// Desc -> Id | Asig_E
 // Type -> bool | char | int | double | float | string
 // Expr -> Expr + Term | Expr - Term | Term
 // Term -> Term * Factor | Term / Factor | Factor
 // Factor -> Number | Id | ( Expr )
-// Bool -> Expr | Expr Op Expr
-// Op -> == | >= | > | < | <=
+// Bool -> Expr | Expr Op_Compare Expr
+// Op_Compare -> == | >= | > | < | <=
 // Number -> Decimal_Number | Octal_Number | Hexademical_Number
 
 
@@ -45,6 +48,7 @@ public:
     int id;
     
     static int cur_id;
+    static const int format_length = 2;
     
     Node(string Component){
         this->Component = Component;
@@ -61,7 +65,7 @@ public:
     
     string format_Component(){
         string f_Component = Component;
-        while(f_Component.length() < 4*node_format_length){
+        while(f_Component.length() < 4*format_length){
             f_Component += is_terminal()?" ":"-";
         }
         return f_Component;
@@ -71,15 +75,13 @@ public:
 
 int Node::cur_id = 0;
 
-
 class GrammarAnalyzer {
     
 public:
     
     
-    GrammarAnalyzer(string code_path):root("Root"){
-        LexicalAnalyzer lex(code_path);
-        lex_result = lex.lex_result;
+    GrammarAnalyzer(vector<pair<vector<string>, int> > &lex_result):root("Root"){
+        this->lex_result = lex_result;
     }
     
     void grammer_analysis(){
@@ -94,7 +96,7 @@ public:
     void draw_Node(Node node, int cols_before, int index){
         if(index != 0){
             for(int i=0; i<cols_before; i++){
-                for(int j=0; j<node_format_length; j++){
+                for(int j=0; j<Node::format_length; j++){
                     printf("\t");
                 }
             }
@@ -111,28 +113,33 @@ public:
         }
     }
     
-    void print_AST(){
-        print_Node(root);
-    }
-    
-    void print_Node(Node node){
-        printf("Node : %s\n", node.Component.c_str());
-        for(Node son : node.sons){
-            print_Node(son);
-        }
-    }
+
 private:
     
     int cur = 0;
     Node root;
+    
     vector<pair<vector<string>, int> > lex_result;
     
     string get_word(){
+//        int i = (cur == lex_result.size() ? cur : cur-1);
         return lex_result[cur].first[0];
     }
     
     string get_next_word(){
         return lex_result[cur+1].first[0];
+    }
+    
+    void check_add(Node &node, string symbol){
+        if(get_word() == symbol){
+            node.add_son(Node(symbol));
+            cur++;
+        }
+        else{
+            
+            node.add_son(Node("Error("+get_word()+")"));
+            printf("[ERROR] Miss %s before '%s' [%s] - [%s]\n", symbol.c_str(), get_word().c_str(), lex_result[cur].first[1].c_str(), lex_result[cur].first[2].c_str());
+        }
     }
     
     bool is_Type(){
@@ -168,43 +175,35 @@ private:
     }
     
     
-    
+    // Program -> int main Block
     Node proc_Program(){
         Node Program("Program");
         
-        if(get_word() == "int"){
-            cur++;
-            Program.add_son(Node("int"));
-        }
-        if(get_word() == "main"){
-            cur++;
-            Program.add_son(Node("main"));
-        }
+        check_add(Program, "int");
+        check_add(Program, "main");
+        check_add(Program, "(");
+        check_add(Program, ")");
 
-        Node Block = proc_Block();
-        Program.add_son(Block);
+        Program.add_son(proc_Block());
 
         return Program;
     }
     
+    // Block -> { Stmts }
     Node proc_Block(){
         Node Block("Block");
-        if(get_word() == "{"){
-            Block.add_son(Node("{"));
-            cur++;
-        }
+
+        check_add(Block, "{");
 
         if(!(get_word() == "}")){
             Block.add_son(proc_Stmts());
         }
         
-        if(get_word() == "}"){
-            Block.add_son(Node("}"));
-            cur++;
-        }
+        check_add(Block, "}");
         return Block;
     }
     
+    // Stmts -> Stmt Stmts | Empty
     Node proc_Stmts(){
         Node Stmts("Stmts");
         
@@ -217,38 +216,34 @@ private:
         return Stmts;
     }
     
+    
+    //Stmt -> Asig ; | Decl ; | break ; | continue; | DO_WHILE | IF |
+    //          WHILE | DO_WHILE ; | GET ; | PUT ; | Asig_C ; | Asig_S ; | RETURN ;
     Node proc_Stmt(){
         Node Stmt("Stmt");
         if(is_Id()){
             if(is_Asig_C_Op(get_next_word())){
                 Stmt.add_son(proc_Asig_C());
-                if(get_word() == ";"){
-                    Stmt.add_son(Node(";"));
-                    cur++;
-                }
+                check_add(Stmt, ";");
             }
             else if(get_next_word()=="++" || get_next_word()=="--"){
                 Stmt.add_son(proc_Asig_S());
-                if(get_word() == ";"){
-                    Stmt.add_son(Node(";"));
-                    cur++;
-                }
+                check_add(Stmt, ";");
             }
             else if(get_next_word()=="="){
                 Stmt.add_son(proc_Asig_E());
-                if(get_word() == ";"){
-                    Stmt.add_son(Node(";"));
-                    cur++;
-                }
+                check_add(Stmt, ";");
+            }
+            else{
+                Stmt.add_son(proc_Id());
+                check_add(Stmt, "Assignment Operator");
+                cur++;
             }
         }
         
         else if(is_Type()){
             Stmt.add_son(proc_Decl());
-            if(get_word() == ";"){
-                Stmt.add_son(Node(";"));
-                cur++;
-            }
+            check_add(Stmt, ";");
         }
         else if(get_word() == "if"){
             Stmt.add_son(proc_IF());
@@ -256,183 +251,176 @@ private:
         else if(get_word() == "while"){
             Stmt.add_son(proc_WHILE());
         }
+        else if(get_word() == "do"){
+            Stmt.add_son(proc_DO_WHILE());
+            check_add(Stmt, ";");
+        }
         else if(get_word() == "break" || get_word() == "continue"){
-            Stmt.add_son(Node(get_word()));
-            cur++;
-            if(get_word() == ";"){
-                Stmt.add_son(Node(";"));
-                cur++;
-            }
+            check_add(Stmt, get_word());
+            check_add(Stmt, ";");
         }
         
         else if(get_word() == "get"){
             Stmt.add_son(proc_GET());
-            if(get_word() == ";"){
-                Stmt.add_son(Node(";"));
-                cur++;
-            }
+            check_add(Stmt, ";");
         }
         else if(get_word() == "put"){
             Stmt.add_son(proc_PUT());
-            if(get_word() == ";"){
-                Stmt.add_son(Node(";"));
-                cur++;
-            }
+            check_add(Stmt, ";");
         }
         else if(get_word() == "return"){
             Stmt.add_son(proc_RETURN());
-            if(get_word() == ";"){
-                Stmt.add_son(Node(";"));
-                cur++;
-            }
+            check_add(Stmt, ";");
+        }
+        else{
+            check_add(Stmt, "Legal Statement Word");
+            cur++;
         }
         return Stmt;
     }
     
+    // GET -> get ( Id )
     Node proc_GET(){
         Node GET("GET");
-        if(get_word() == "get"){
-            GET.add_son(Node("get"));
-            cur++;
-        }
-        if(get_word() == "("){
-            GET.add_son(Node("("));
-            cur++;
-        }
+        
+        check_add(GET, "get");
+        check_add(GET, "(");
+        
         if(is_Id()){
             GET.add_son(proc_Id());
         }
-        if(get_word() == ")"){
-            GET.add_son(Node(")"));
-            cur++;
-        }
+        
+        check_add(GET, ")");
         return GET;
     }
     
+    // PUT -> put ( Expr )
     Node proc_PUT(){
         Node PUT("PUT");
-        if(get_word() == "put"){
-            PUT.add_son(Node("put"));
-            cur++;
-        }
-        if(get_word() == "("){
-            PUT.add_son(Node("("));
-            cur++;
-        }
+        
+        check_add(PUT, "put");
+        check_add(PUT, "(");
+        
         PUT.add_son(proc_Expr());
-        if(get_word() == ")"){
-            PUT.add_son(Node(")"));
-            cur++;
-        }
+        
+        check_add(PUT, ")");
+        
         return PUT;
     }
     
+    // IF -> if ( Bool ) Block |
+    //       if ( Bool ) Block else Block |
+    //       if ( Bool ) Block ELSE_IF else Block
     Node proc_IF(){
         Node IF("IF");
-        if(get_word() == "if"){
-            IF.add_son(Node("if"));
-            cur++;
-            
-            if(get_word()=="("){
-                IF.add_son(Node("("));
-                cur++;
-            }
-            IF.add_son(proc_Bool());
-            if(get_word()==")"){
-                IF.add_son(Node(")"));
-                cur++;
-            }
-            IF.add_son(proc_Block());
-            
-            
-            while(get_word() == "else if"){
-                IF.add_son(proc_ELSE_IF());
-            }
-            
-            
-            if(get_word() == "else"){
-                IF.add_son(proc_ELSE());
-            }
+        
+        check_add(IF, "if");
+        check_add(IF, "(");
+        
+        IF.add_son(proc_Bool());
+        
+        check_add(IF, ")");
+        
+        IF.add_son(proc_Block());
+        
+        
+        while(get_word() == "else if"){
+            IF.add_son(proc_ELSE_IF());
+        }
+        
+        
+        if(get_word() == "else"){
+            IF.add_son(proc_ELSE());
         }
         return IF;
     }
     
+    // WHILE -> while ( Bool ) Block
     Node proc_WHILE(){
         Node WHILE("WHILE");
         
-        WHILE.add_son(Node("while"));
-        cur++;
+        check_add(WHILE, "while");
+        check_add(WHILE, "(");
         
-        if(get_word()=="("){
-            WHILE.add_son(Node("("));
-            cur++;
-        }
         WHILE.add_son(proc_Bool());
-        if(get_word()==")"){
-            WHILE.add_son(Node(")"));
-            cur++;
-        }
+        
+        check_add(WHILE, ")");
+        
         WHILE.add_son(proc_Block());
         
         return WHILE;
     }
     
+    // DO_WHILE -> do Block while ( Bool )
+    Node proc_DO_WHILE(){
+        Node DO_WHILE("DO_WHILE");
+        check_add(DO_WHILE, "do");
+        DO_WHILE.add_son(proc_Block());
+        check_add(DO_WHILE, "while");
+        check_add(DO_WHILE, "(");
+        DO_WHILE.add_son(proc_Bool());
+        check_add(DO_WHILE, ")");
+        return DO_WHILE;
+    }
+    
+    // ELSE -> else Block
     Node proc_ELSE(){
         Node ELSE("ELSE");
         
-        if(get_word() == "else"){
-            ELSE.add_son(Node("else"));
-            cur++;
-        }
+        check_add(ELSE, "else");
 
         ELSE.add_son(proc_Block());
         
         return ELSE;
     }
     
+    // ELSE_IF -> else if ( Bool ) Block | else if ( Bool ) Block ELSE_IF
     Node proc_ELSE_IF(){
         Node ELSE_IF("ELSE_IF");
-        if(get_word() == "else if"){
-            ELSE_IF.add_son(Node("else if"));
-            cur++;
-        }
-        if(get_word()=="("){
-            ELSE_IF.add_son(Node("("));
-            cur++;
-        }
+        
+        check_add(ELSE_IF, "else if");
+        check_add(ELSE_IF, "(");
+        
         ELSE_IF.add_son(proc_Bool());
-        if(get_word()==")"){
-            ELSE_IF.add_son(Node(")"));
-            cur++;
-        }
+        
+        check_add(ELSE_IF, ")");
+        
         ELSE_IF.add_son(proc_Block());
         return ELSE_IF;
     }
     
+    Node proc_Type(){
+        Node Type("Type");
+        Type.add_son(Node(get_word()));
+        cur++;
+        return Type;
+    }
+    
+    // Decl -> Type Descs
     Node proc_Decl(){
         Node Decl("Decl");
+        
         if(is_Type()){
-            Node Type("Type");
-            Type.add_son(Node(get_word()));
-            Decl.add_son(Type);
-            cur++;
+            Decl.add_son(proc_Type());
         }
         Decl.add_son(proc_Descs());
+        
         return Decl;
         
     }
     
+    // Descs -> Desc | Desc , Descs
     Node proc_Descs(){
         Node Descs("Descs");
         Descs.add_son(proc_Desc());
         while(get_word()==","){
-            Descs.add_son(Node(","));
-            cur++;
+            check_add(Descs, ",");
             Descs.add_son(proc_Desc());
         }
         return Descs;
     }
     
+    // Desc -> Id | Asig_E
     Node proc_Desc(){
         Node Desc("Desc");
         if(is_Id() && get_next_word()=="="){
@@ -460,62 +448,68 @@ private:
         return Number;
     }
     
+    // Asig_E -> Id = Expr
     Node proc_Asig_E(){
         Node Asig_E("Asig_E");
+        
         if(is_Id()){
             Asig_E.add_son(proc_Id());
         }
-        if(get_word() == "="){
-            Asig_E.add_son(Node("="));
-            cur++;
-        }
+        
+        check_add(Asig_E, "=");
 
         Asig_E.add_son(proc_Expr());
         return Asig_E;
     }
     
+    // Factor -> Number | Id | ( Expr )
     Node proc_Factor(){
         Node Factor("Factor");
+        
         if(is_Id()){
             Factor.add_son(proc_Id());
         }
         else if(is_Number()){
             Factor.add_son(proc_Number());
         }
+        
         else if(get_word()=="("){
-            Factor.add_son(Node("("));
-            cur++;
+            check_add(Factor, "(");
             
             Factor.add_son(proc_Expr());
             
-            if(get_word()==")"){
-                Factor.add_son(Node(")"));
-                cur++;
-            }
+            check_add(Factor, ")");
+        }
+        else{
+            //error
+            check_add(Factor, "Expression");
         }
         return Factor;
         
     }
     
+    // Term -> Term * Factor | Term / Factor | Factor
     Node proc_Term(){
         Node Term("Term");
+        
         Term.add_son(proc_Factor());
+        
         while(get_word()=="*" || get_word()=="/"){
-            Term.add_son(Node(get_word()));
-            cur++;
+            check_add(Term, get_word());
             
             Term.add_son(proc_Factor());
         }
         return Term;
     }
     
-    
+    // Expr -> Expr + Term | Expr - Term | Term
     Node proc_Expr(){
         Node Expr("Expr");
+        
         Expr.add_son(proc_Term());
+        
         while(get_word()=="+" || get_word()=="-"){
-            Expr.add_son(Node(get_word()));
-            cur++;
+            check_add(Expr, get_word());
             
             Expr.add_son(proc_Term());
         }
@@ -523,13 +517,15 @@ private:
         
     }
     
+    // Bool -> Expr | Expr Op_Compare Expr
+    // Op_Compare -> == | >= | > | < | <=
     Node proc_Bool(){
         Node Bool("Bool");
         
         Bool.add_son(proc_Expr());
+        
         if(is_Compare_Op()){
-            Bool.add_son(get_word());
-            cur++;
+            check_add(Bool, get_word());
             Bool.add_son(proc_Expr());
         }
         return Bool;
@@ -538,36 +534,38 @@ private:
     // RETURN -> return Expr
     Node proc_RETURN(){
         Node RETURN("RETURN");
-        if(get_word() == "return"){
-            RETURN.add_son(Node(get_word()));
-            cur++;
-        }
+        
+        check_add(RETURN, "return");
+        
         RETURN.add_son(proc_Expr());
+        
         return RETURN;
     }
     
     // Asig_C -> Id Asig_Op Expr
     Node proc_Asig_C(){
         Node Asig_C("Asig_C");
+        
         if(is_Id()){
             Asig_C.add_son(proc_Id());
         }
         if(is_Asig_C_Op()){
-            Asig_C.add_son(Node(get_word()));
-            cur++;
+            check_add(Asig_C, get_word());
         }
         Asig_C.add_son(proc_Expr());
+        
         return Asig_C;
     }
     
+    // Asig_S -> Id ++ | Id --
     Node proc_Asig_S(){
         Node Asig_S("Asig_S");
+        
         if(is_Id()){
             Asig_S.add_son(proc_Id());
         }
-        if(get_word()=="++" || get_next_word()=="--"){
-            Asig_S.add_son(Node(get_word()));
-            cur++;
+        if(get_word()=="++" || get_word()=="--"){
+            check_add(Asig_S, get_word());
         }
         return Asig_S;
     }
