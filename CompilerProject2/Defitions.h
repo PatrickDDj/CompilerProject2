@@ -22,7 +22,7 @@ const vector<string> KEY_WORDS = {
     "main", "include", "void", "return",
     "int", "bool", "float", "double","char","string",
     
-    "(", ")", "[", "]", "{", "}", ".", "#", "_", ",", ";", "'", "\"",
+    "(", ")", "[", "]", "{", "}", ".", "#", "_", ",", ";", "'", "\"",":",
     
     "!", "&", "~", "^","|",
     "+", "-", "*", "/", "%",
@@ -41,7 +41,7 @@ const vector<string> KEY_WORDS = {
     "Octal_Number", //八进制
     "String_Constant",
     
-    "if", "else", "while", "for", "else if","break", "continue", "do",
+    "if", "else", "while", "for", "else if","break", "continue", "do","switch", "case", "default",
 //    "get", "put",
     "true", "false"
     
@@ -70,8 +70,7 @@ map<string, int> Op_Precedence = {
     {"%", 100}
 };
 
-//map<string, int> Id_MAP;
-
 #endif /* Defitions_h */
+
 
 

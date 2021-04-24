@@ -21,8 +21,15 @@
 //       if ( Expr ) Block ELSE_IF ELSE
 // ELSE_IF -> else if ( Expr ) Block | else if ( Expr ) Block ELSE_IF
 // ELSE -> else Block
+
 // WHILE -> while ( Expr ) Block
 // DO_WHILE -> do Block while ( Expr ) ;
+
+// SWITCH -> switch ( Expr ) { CASES DEFAULT }
+// CASES -> CASE | CASE CASES
+// CASE -> case constant : Stmts
+// DEFAULT -> default : Stmts
+
 // RETURN -> return Expr
 
 // Asig_C -> Id Asig_Op Expr
@@ -86,7 +93,7 @@ public:
     
     GrammarAnalyzer(vector<pair<vector<string>, int> > &lex_result):root("Root"){
         this->lex_result = lex_result;
-//        init_op_precedence();
+        grammer_analysis();
     }
     
     void grammer_analysis(){
@@ -164,6 +171,15 @@ private:
         return (word_type=="Octal_Number" || word_type=="Decimal_Number" || word_type=="Hexademical_Number");
     }
     
+    bool is_TF(){
+        string word = get_word();
+        return (word=="true" || word=="false");
+    }
+    
+    bool is_Constant(){
+        return is_Number() || is_TF();
+    }
+    
     bool is_Compare_Op(){
         string word = get_word();
         return (word=="==" || word=="<=" || word=="<" || word==">=" || word==">");
@@ -214,7 +230,7 @@ private:
         
         Stmts.add_son(proc_Stmt());
 
-        while(!(get_word() == "}")){
+        while(!(get_word() == "}" || get_word()=="case" || get_word()=="default")){
             Stmts.add_son(proc_Stmt());
         }
             
@@ -269,15 +285,18 @@ private:
             check_add(Stmt, get_word());
             check_add(Stmt, ";");
         }
+        else if(get_word()=="switch"){
+            Stmt.add_son(proc_SWITCH());
+        }
         
-        else if(get_word() == "get"){
-            Stmt.add_son(proc_GET());
-            check_add(Stmt, ";");
-        }
-        else if(get_word() == "put"){
-            Stmt.add_son(proc_PUT());
-            check_add(Stmt, ";");
-        }
+//        else if(get_word() == "get"){
+//            Stmt.add_son(proc_GET());
+//            check_add(Stmt, ";");
+//        }
+//        else if(get_word() == "put"){
+//            Stmt.add_son(proc_PUT());
+//            check_add(Stmt, ";");
+//        }
         else if(get_word() == "return"){
             Stmt.add_son(proc_RETURN());
             check_add(Stmt, ";");
@@ -290,33 +309,33 @@ private:
     }
     
     // GET -> get ( Id )
-    Node proc_GET(){
-        Node GET("GET");
-        
-        check_add(GET, "get");
-        check_add(GET, "(");
-        
-        if(is_Id()){
-            GET.add_son(proc_Id());
-        }
-        
-        check_add(GET, ")");
-        return GET;
-    }
+//    Node proc_GET(){
+//        Node GET("GET");
+//
+//        check_add(GET, "get");
+//        check_add(GET, "(");
+//
+//        if(is_Id()){
+//            GET.add_son(proc_Id());
+//        }
+//
+//        check_add(GET, ")");
+//        return GET;
+//    }
     
     // PUT -> put ( Expr )
-    Node proc_PUT(){
-        Node PUT("PUT");
-        
-        check_add(PUT, "put");
-        check_add(PUT, "(");
-        
-        PUT.add_son(proc_Expr());
-        
-        check_add(PUT, ")");
-        
-        return PUT;
-    }
+//    Node proc_PUT(){
+//        Node PUT("PUT");
+//
+//        check_add(PUT, "put");
+//        check_add(PUT, "(");
+//
+//        PUT.add_son(proc_Expr());
+//
+//        check_add(PUT, ")");
+//
+//        return PUT;
+//    }
     
     // IF -> if ( Expr ) Block |
     //       if ( Expr ) Block else Block |
@@ -491,6 +510,24 @@ private:
         return Number;
     }
     
+    Node proc_TF(){
+        Node TF("TF");
+        TF.add_son(Node(get_word()));
+        cur++;
+        return TF;
+    }
+    
+    Node proc_Constant(){
+        Node Constant("Constant");
+        if(is_Number()){
+            Constant.add_son(proc_Number());
+        }
+        else if(is_TF()){
+            Constant.add_son(proc_TF());
+        }
+        return Constant;
+    }
+    
     // Asig_E -> Id = Expr
     Node proc_Asig_E(){
         Node Asig_E("Asig_E");
@@ -514,6 +551,10 @@ private:
         }
         else if(is_Number()){
             Factor.add_son(proc_Number());
+        }
+        
+        else if(is_TF()){
+            Factor.add_son(proc_TF());
         }
         
         else if(get_word()=="("){
@@ -543,8 +584,6 @@ private:
         c.add_son(RHS);
         return c;
     }
-    
-
     
     Node proc_Expr(){
         Node LHS = proc_Factor();
@@ -577,21 +616,62 @@ private:
     
 
     
-    // Bool -> Expr | Expr Op_Compare Expr
-    // Op_Compare -> == | >= | > | < | <=
-//    Node proc_Bool(){
-//        Node Bool("Bool");
-//
-//        Bool.add_son(proc_Expr());
-//
-//        if(is_Compare_Op()){
-//            check_add(Bool, get_word());
-//            Bool.add_son(proc_Expr());
-//        }
-//        return Bool;
-//    }
+    // SWITCH -> switch ( Expr ) { CASES DEFAULT }
+    Node proc_SWITCH(){
+        Node SWITCH("SWITCH");
+        
+        check_add(SWITCH, "switch");
+        check_add(SWITCH, "(");
+        SWITCH.add_son(proc_Expr());
+        check_add(SWITCH, ")");
+        
+        check_add(SWITCH, "{");
+        SWITCH.add_son(proc_CASES());
+        SWITCH.add_son(proc_DEFAULT());
+        
+        check_add(SWITCH, "}");
+        
+        return SWITCH;
+    }
     
-    // RETURN -> return Expr
+    // CASES -> CASE | CASE CASES
+    Node proc_CASES(){
+        Node CASES("CASES");
+        
+        while(get_word()=="case"){
+            CASES.add_son(proc_CASE());
+        }
+        
+        return CASES;
+    }
+    
+    
+    // CASE -> case constant : Stmts
+    Node proc_CASE(){
+        Node CASE("CASE");
+        
+        check_add(CASE, "case");
+        if(is_Constant()){
+            CASE.add_son(proc_Constant());
+        }
+        check_add(CASE, ":");
+        CASE.add_son(proc_Stmts());
+        
+        
+        return CASE;
+    }
+    
+    
+    // DEFAULT -> default : Stmts
+    Node proc_DEFAULT(){
+        Node DEFAULT("DEFAULT");
+        check_add(DEFAULT, "default");
+        check_add(DEFAULT, ":");
+        if(get_word()!="}"){
+            DEFAULT.add_son(proc_Stmts());
+        }
+        return DEFAULT;
+    }
     Node proc_RETURN(){
         Node RETURN("RETURN");
         

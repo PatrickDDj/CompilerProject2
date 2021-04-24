@@ -1,5 +1,22 @@
 int main(){
+
+    switch (a) {
+        case 1:
+            f(a ,b );
+            a=1;
+            break;
+        case 2:
+            a = 3;
+            
+        default:
+            a=7;
+            break;
+    }
+
+
+
     int x = f(x,y);
+    
     g();
     int a, b=3*(11+2)+3/4;
     a = 12 + 1 == (2 + 3 > 1) * 4 - 1*5 -7;
@@ -16,10 +33,12 @@ int main(){
     else{
         a = 0x123A;
     }
-    while(a <= 10){
+    while(true){
         a = 3*(a+1)/4;
         break;
     }
+    
+    
     do{
         a--;
     }
