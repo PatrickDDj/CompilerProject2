@@ -9,12 +9,16 @@
 
 #ifndef GrammarAnalyzer_h
 #define GrammarAnalyzer_h
-
-// Program -> int main() Block
+// PROGRAM -> HEADER MAIN
+// MAIN -> int main() Block
 // Block -> { Stmts }
 // Stmts -> Stmt Stmts | Empty
-// Stmt -> Asig_E ; | Decl ; | break ; | continue; | DO_WHILE | IF | WHILE | DO_WHILE ;
-//                      GET ; | PUT ; | Asig_C ; | Asig_S ; | RETURN ;
+// Stmt -> Asig_E ; | Decl ; | break ; | continue; | DO_WHILE | IF | WHILE | DO_WHILE ; |
+//                    Asig_C ; | Asig_S ; | RETURN ; | SWITCH
+
+// HEADER -> H_Stmts
+// H_Stmts -> H_Stmt H_Stmts | Empty
+// H_Stmt -> F_Def | Decl ;
 
 // IF -> if ( Expr ) Block |
 //       if ( Expr ) Block ELSE |
@@ -35,6 +39,10 @@
 // Asig_C -> Id Asig_Op Expr
 // Asig_S -> Id ++ | Id --
 // Asig_E -> Id = Expr
+
+// F_Def -> Type F_Name ( P_List ) Block
+// P_List -> P_Def | P_Def , P_List | Empty
+// P_Def -> Type Id
 
 // F_Call -> F_Name ( Paras )
 // Paras -> Para | Para , Paras | Empty
@@ -91,18 +99,18 @@ class GrammarAnalyzer {
 public:
     
     
-    GrammarAnalyzer(vector<pair<vector<string>, int> > &lex_result):root("Root"){
+    GrammarAnalyzer(vector<pair<vector<string>, int> > &lex_result):PROGRAM("PROGRAM"){
         this->lex_result = lex_result;
         grammer_analysis();
     }
     
     void grammer_analysis(){
-        Node Program = proc_Program();
-        root.add_son(Program);
+        PROGRAM.add_son(proc_HEADER());
+        PROGRAM.add_son(proc_MAIN());
     }
     
     void draw_AST(){
-        draw_Node(root, 0, 0);
+        draw_Node(PROGRAM, 0, 0);
     }
     
     void draw_Node(Node node, int cols_before, int index){
@@ -129,7 +137,7 @@ public:
 private:
     
     int cur = 0;
-    Node root;
+    Node PROGRAM;
     
     vector<pair<vector<string>, int> > lex_result;
 
@@ -156,9 +164,10 @@ private:
     
     bool is_Type(){
         string word = get_word();
-        return (word=="int" || word=="char" || word=="bool" ||
+        return (word=="int" || word=="char" || word=="bool" || word=="void" ||
                 word=="string" || word=="double" || word=="float");
     }
+    
     
     bool is_Id(){
         int word_id = lex_result[cur].second;
@@ -179,11 +188,7 @@ private:
     bool is_Constant(){
         return is_Number() || is_TF();
     }
-    
-    bool is_Compare_Op(){
-        string word = get_word();
-        return (word=="==" || word=="<=" || word=="<" || word==">=" || word==">");
-    }
+
     
     bool is_Asig_C_Op(string word){
         return (word=="+=" || word=="-=" || word== "/=" ||
@@ -195,19 +200,116 @@ private:
         return is_Asig_C_Op(get_word());
     }
     
+    bool is_Stmts_End(){
+        string word = get_word();
+        return (word == "}" || word=="case" || word=="default");
+    }
+    
+    bool is_HEADER_End(){
+        return get_word()=="int" && get_next_word()=="main";
+    }
+    
+    bool is_F_Def(){
+        bool cond1 = is_Type();
+        cur++;
+        bool cond2 = is_Id();
+        bool cond3 = get_next_word()=="(";
+        cur--;
+        return cond1 && cond2 && cond3;
+    }
+    
     
     // Program -> int main Block
     Node proc_Program(){
         Node Program("Program");
         
-        check_add(Program, "int");
-        check_add(Program, "main");
-        check_add(Program, "(");
-        check_add(Program, ")");
-
-        Program.add_son(proc_Block());
+        Program.add_son(proc_HEADER());
+        Program.add_son(proc_MAIN());
 
         return Program;
+    }
+    
+    // HEADER -> H_Stmts
+    // H_Stmts -> H_Stmt H_Stmts | Empty
+    // H_Stmt -> F_Def | Decl
+    
+    Node proc_HEADER(){
+        Node HEADER("HEADER");
+        HEADER.add_son(proc_H_Stmts());
+        return HEADER;
+    }
+    
+    Node proc_H_Stmts(){
+        Node H_Stmts("H_Stmts");
+        
+        while(!is_HEADER_End()){
+            H_Stmts.add_son(proc_H_Stmt());
+        }
+        
+        return H_Stmts;
+    }
+    
+    Node proc_H_Stmt(){
+        Node H_Stmt("H_Stmt");
+        
+        if(is_F_Def()){
+            H_Stmt.add_son(proc_F_Def());
+        }
+        else{
+            H_Stmt.add_son(proc_Decl());
+            check_add(H_Stmt, ";");
+        }
+        
+        return H_Stmt;
+    }
+    
+    // F_Def -> Type F_Name ( P_List ) Block
+    // P_List -> P_Def | P_Def , P_List | Empty
+    // P_Def -> Type Id
+    
+    Node proc_F_Def(){
+        Node F_Def("F_Def");
+        F_Def.add_son(proc_Type());
+        F_Def.add_son(proc_F_Name());
+        check_add(F_Def, "(");
+        F_Def.add_son(proc_P_List());
+        check_add(F_Def, ")");
+        F_Def.add_son(proc_Block());
+        return F_Def;
+    }
+    
+    Node proc_P_List(){
+        Node P_List("P_List");
+        
+        while(get_word()!=")"){
+            P_List.add_son(proc_P_Def());
+//            cout << get_word() << endl;
+            if(get_word()==","){
+                check_add(P_List, ",");
+            }
+        }
+        
+        return P_List;
+    }
+    
+    Node proc_P_Def(){
+        Node P_Def("P_Def");
+        
+        P_Def.add_son(proc_Type());
+        P_Def.add_son(proc_Id());
+        
+        return P_Def;
+    }
+    
+    Node proc_MAIN(){
+        Node MAIN("MAIN");
+        check_add(MAIN, "int");
+        check_add(MAIN, "main");
+        check_add(MAIN, "(");
+        check_add(MAIN, ")");
+
+        MAIN.add_son(proc_Block());
+        return MAIN;
     }
     
     // Block -> { Stmts }
@@ -230,7 +332,7 @@ private:
         
         Stmts.add_son(proc_Stmt());
 
-        while(!(get_word() == "}" || get_word()=="case" || get_word()=="default")){
+        while(!is_Stmts_End()){
             Stmts.add_son(proc_Stmt());
         }
             
@@ -288,15 +390,6 @@ private:
         else if(get_word()=="switch"){
             Stmt.add_son(proc_SWITCH());
         }
-        
-//        else if(get_word() == "get"){
-//            Stmt.add_son(proc_GET());
-//            check_add(Stmt, ";");
-//        }
-//        else if(get_word() == "put"){
-//            Stmt.add_son(proc_PUT());
-//            check_add(Stmt, ";");
-//        }
         else if(get_word() == "return"){
             Stmt.add_son(proc_RETURN());
             check_add(Stmt, ";");
@@ -307,35 +400,7 @@ private:
         }
         return Stmt;
     }
-    
-    // GET -> get ( Id )
-//    Node proc_GET(){
-//        Node GET("GET");
-//
-//        check_add(GET, "get");
-//        check_add(GET, "(");
-//
-//        if(is_Id()){
-//            GET.add_son(proc_Id());
-//        }
-//
-//        check_add(GET, ")");
-//        return GET;
-//    }
-    
-    // PUT -> put ( Expr )
-//    Node proc_PUT(){
-//        Node PUT("PUT");
-//
-//        check_add(PUT, "put");
-//        check_add(PUT, "(");
-//
-//        PUT.add_son(proc_Expr());
-//
-//        check_add(PUT, ")");
-//
-//        return PUT;
-//    }
+
     
     // IF -> if ( Expr ) Block |
     //       if ( Expr ) Block else Block |

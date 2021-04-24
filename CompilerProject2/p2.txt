@@ -1,3 +1,12 @@
+void g(){
+    int x= 1;
+}
+
+int a = 1;
+int f(int a, int b){
+    return a+b;
+}
+
 int main(){
 
     switch (a) {
