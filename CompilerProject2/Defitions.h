@@ -42,13 +42,36 @@ const vector<string> KEY_WORDS = {
     "String_Constant",
     
     "if", "else", "while", "for", "else if","break", "continue", "do",
-    "get", "put",
+//    "get", "put",
     "true", "false"
     
 };
 
 map<string, int> KEY_WORDS_MAP;
 
+map<string, int> Op_Precedence = {
+    {"||", 10},
+    {"&&", 20},
+    {"|", 30},
+    {"^", 40},
+    {"&", 50},
+    {"!=", 60},
+    {"==", 60},
+    {">", 70},
+    {">=", 70},
+    {"<=", 70},
+    {"<", 70},
+    {"<<", 80},
+    {">>", 80},
+    {"+", 90},
+    {"-", 90},
+    {"*", 100},
+    {"/", 100},
+    {"%", 100}
+};
+
 //map<string, int> Id_MAP;
 
 #endif /* Defitions_h */
+
+

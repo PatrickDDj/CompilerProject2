@@ -1,7 +1,10 @@
 int main(){
-    int a, b=3*(11+2);
+    int x = f(x,y);
+    g();
+    int a, b=3*(11+2)+3/4;
+    a = 12 + 1 == (2 + 3 > 1) * 4 - 1*5 -7;
     a--;
-    
+
     a++;
     get(a);
     if(a==1){
@@ -23,6 +26,6 @@ int main(){
     while(a>0);
     put(a+b);
     return (0);
-   }
+}
 
 
