@@ -18,7 +18,7 @@
 
 // HEADER -> H_Stmts
 // H_Stmts -> H_Stmt H_Stmts | Empty
-// H_Stmt -> F_Def | Decl ;
+// H_Stmt -> FunDef | Decl ;
 
 // IF -> if ( Expr ) Block |
 //       if ( Expr ) Block ELSE |
@@ -31,7 +31,7 @@
 
 // SWITCH -> switch ( Expr ) { CASES DEFAULT }
 // CASES -> CASE | CASE CASES
-// CASE -> case constant : Stmts
+// CASE -> case Const : Stmts
 // DEFAULT -> default : Stmts
 
 // RETURN -> return Expr
@@ -40,11 +40,11 @@
 // Asig_S -> Id ++ | Id --
 // Asig_E -> Id = Expr
 
-// F_Def -> Type F_Name ( P_List ) Block
-// P_List -> P_Def | P_Def , P_List | Empty
-// P_Def -> Type Id
+// FunDef -> Type FunName ( ParasDef ) Block
+// ParasDef -> ParaDef | ParaDef , ParasDef | Empty
+// ParaDef -> Type Id
 
-// F_Call -> F_Name ( Paras )
+// FunCall -> FunName ( Paras )
 // Paras -> Para | Para , Paras | Empty
 // Para -> Expr
 
@@ -54,7 +54,7 @@
 // Type -> bool | char | int | double | float | string
 
 // Expr -> Factor | Factor BinOp Expr
-// Factor -> Number | ( Expr ) | Id | F_Call
+// Factor -> Number | ( Expr ) | Id | FunCall
 // BinOp -> == | >= | > | < | <= | + ...
 // Number -> Decimal_Number | Octal_Number | Hexademical_Number
 
@@ -185,7 +185,7 @@ private:
         return (word=="true" || word=="false");
     }
     
-    bool is_Constant(){
+    bool is_Const(){
         return is_Number() || is_TF();
     }
 
@@ -209,7 +209,7 @@ private:
         return get_word()=="int" && get_next_word()=="main";
     }
     
-    bool is_F_Def(){
+    bool is_FunDef(){
         bool cond1 = is_Type();
         cur++;
         bool cond2 = is_Id();
@@ -230,15 +230,13 @@ private:
     }
     
     // HEADER -> H_Stmts
-    // H_Stmts -> H_Stmt H_Stmts | Empty
-    // H_Stmt -> F_Def | Decl
-    
     Node proc_HEADER(){
         Node HEADER("HEADER");
         HEADER.add_son(proc_H_Stmts());
         return HEADER;
     }
     
+    // H_Stmts -> H_Stmt H_Stmts | Empty
     Node proc_H_Stmts(){
         Node H_Stmts("H_Stmts");
         
@@ -249,11 +247,12 @@ private:
         return H_Stmts;
     }
     
+    // H_Stmt -> FunDef | Decl
     Node proc_H_Stmt(){
         Node H_Stmt("H_Stmt");
         
-        if(is_F_Def()){
-            H_Stmt.add_son(proc_F_Def());
+        if(is_FunDef()){
+            H_Stmt.add_son(proc_FunDef());
         }
         else{
             H_Stmt.add_son(proc_Decl());
@@ -263,44 +262,47 @@ private:
         return H_Stmt;
     }
     
-    // F_Def -> Type F_Name ( P_List ) Block
-    // P_List -> P_Def | P_Def , P_List | Empty
-    // P_Def -> Type Id
     
-    Node proc_F_Def(){
-        Node F_Def("F_Def");
-        F_Def.add_son(proc_Type());
-        F_Def.add_son(proc_F_Name());
-        check_add(F_Def, "(");
-        F_Def.add_son(proc_P_List());
-        check_add(F_Def, ")");
-        F_Def.add_son(proc_Block());
-        return F_Def;
+    // FunDef -> Type FunName ( ParasDef ) Block
+    // ParasDef -> ParaDef | ParaDef , ParasDef | Empty
+    // ParaDef -> Type Id
+    
+    Node proc_FunDef(){
+        Node FunDef("FunDef");
+        FunDef.add_son(proc_Type());
+        FunDef.add_son(proc_FunName());
+        check_add(FunDef, "(");
+        FunDef.add_son(proc_ParasDef());
+        check_add(FunDef, ")");
+        FunDef.add_son(proc_Block());
+        return FunDef;
     }
     
-    Node proc_P_List(){
-        Node P_List("P_List");
+    // ParasDef -> ParaDef | ParaDef , ParasDef | Empty
+    Node proc_ParasDef(){
+        Node ParasDef("ParasDef");
         
         while(get_word()!=")"){
-            P_List.add_son(proc_P_Def());
-//            cout << get_word() << endl;
+            ParasDef.add_son(proc_ParaDef());
             if(get_word()==","){
-                check_add(P_List, ",");
+                check_add(ParasDef, ",");
             }
         }
         
-        return P_List;
+        return ParasDef;
     }
     
-    Node proc_P_Def(){
-        Node P_Def("P_Def");
+    // ParaDef -> Type Id
+    Node proc_ParaDef(){
+        Node ParaDef("ParaDef");
         
-        P_Def.add_son(proc_Type());
-        P_Def.add_son(proc_Id());
+        ParaDef.add_son(proc_Type());
+        ParaDef.add_son(proc_Id());
         
-        return P_Def;
+        return ParaDef;
     }
     
+    // MAIN -> int main ( ) Block
     Node proc_MAIN(){
         Node MAIN("MAIN");
         check_add(MAIN, "int");
@@ -357,7 +359,7 @@ private:
                 Stmt.add_son(proc_Asig_E());
                 check_add(Stmt, ";");
             }
-            //Function Call
+            //Funion Call
             else if(get_next_word()=="("){
                 Stmt.add_son(proc_Id());
                 check_add(Stmt, ";");
@@ -526,12 +528,11 @@ private:
         return Desc;
     }
     
+    // Paras -> Para | Para , Paras | Empty
     Node proc_Paras(){
         Node Paras("Paras");
         while(get_word()!=")"){
-            Node Para("Para");
-            Para.add_son(proc_Expr());
-            Paras.add_son(Para);
+            Paras.add_son(proc_Para());
             if(get_word()==","){
                 check_add(Paras, ",");
             }
@@ -539,24 +540,30 @@ private:
         return Paras;
     }
     
-    Node proc_F_Name(){
-        Node F_Name("F_Name");
-        check_add(F_Name, get_word());
-        return F_Name;
+    Node proc_Para(){
+        Node Para("Para");
+        Para.add_son(proc_Expr());
+        return Para;
+    }
+    
+    Node proc_FunName(){
+        Node FunName("FunName");
+        check_add(FunName, get_word());
+        return FunName;
     }
     
     
-    //Id or F_Call
+    //Id or FunCall
     Node proc_Id(){
         if(get_next_word()=="("){
-            Node F_Call("F_Call");
+            Node FunCall("FunCall");
             
-            F_Call.add_son(proc_F_Name());
-            check_add(F_Call, "(");
+            FunCall.add_son(proc_FunName());
+            check_add(FunCall, "(");
             
-            F_Call.add_son(proc_Paras());
-            check_add(F_Call, ")");
-            return F_Call;
+            FunCall.add_son(proc_Paras());
+            check_add(FunCall, ")");
+            return FunCall;
         }
         else{
             Node Id("Id");
@@ -582,15 +589,15 @@ private:
         return TF;
     }
     
-    Node proc_Constant(){
-        Node Constant("Constant");
+    Node proc_Const(){
+        Node Const("Const");
         if(is_Number()){
-            Constant.add_son(proc_Number());
+            Const.add_son(proc_Number());
         }
         else if(is_TF()){
-            Constant.add_son(proc_TF());
+            Const.add_son(proc_TF());
         }
-        return Constant;
+        return Const;
     }
     
     // Asig_E -> Id = Expr
@@ -711,13 +718,13 @@ private:
     }
     
     
-    // CASE -> case constant : Stmts
+    // CASE -> case Const : Stmts
     Node proc_CASE(){
         Node CASE("CASE");
         
         check_add(CASE, "case");
-        if(is_Constant()){
-            CASE.add_son(proc_Constant());
+        if(is_Const()){
+            CASE.add_son(proc_Const());
         }
         check_add(CASE, ":");
         CASE.add_son(proc_Stmts());
@@ -737,6 +744,8 @@ private:
         }
         return DEFAULT;
     }
+    
+    // RETURN -> return Expr
     Node proc_RETURN(){
         Node RETURN("RETURN");
         

@@ -3,6 +3,7 @@ void g(){
 }
 
 int a = 1;
+
 int f(int a, int b){
     return a+b;
 }
@@ -53,7 +54,7 @@ int main(){
     }
     while(a>0);
     put(a+b);
-    return (0);
+    return (f(1,2));
 }
 
 
