@@ -168,6 +168,11 @@ private:
                 word=="string" || word=="double" || word=="float");
     }
     
+    bool is_SingOp(){
+        string word = get_word();
+        return (word=="-" || word=="!" || word=="~");
+    }
+    
     
     bool is_Id(){
         int word_id = lex_result[cur].second;
@@ -614,7 +619,8 @@ private:
         return Asig_E;
     }
     
-    // Factor -> Number | Id | ( Expr )
+
+    // Factor -> Number | ( Expr ) | Id | FunCall | SingOp Factor
     Node proc_Factor(){
         Node Factor("Factor");
         
@@ -636,6 +642,11 @@ private:
             
             check_add(Factor, ")");
         }
+        else if(is_SingOp()){
+            check_add(Factor, get_word());
+            
+            Factor.add_son(proc_Factor());
+        }
         else{
             //error
             check_add(Factor, "Expression");
@@ -649,13 +660,16 @@ private:
         return Op_Precedence[op];
     }
     
-    Node merge(Node &LHS, Node &op, Node &RHS){
+    Node merge(Node &LHS, Node &BinOp, Node &RHS){
         Node c("Expr");
         c.add_son(LHS);
-        c.add_son(op);
+        c.add_son(BinOp);
         c.add_son(RHS);
         return c;
     }
+    
+    
+    // Expr -> Factor | Factor BinOp Expr
     
     Node proc_Expr(){
         Node LHS = proc_Factor();
@@ -681,8 +695,8 @@ private:
             if(next_Prec > cur_Prec){
                 RHS = proc_RHS(RHS, cur_Prec);
             }
-            Node Op = Node(op);
-            LHS = merge(LHS, Op, RHS);
+            Node BinOp = Node(op);
+            LHS = merge(LHS, BinOp, RHS);
         }
     }
     

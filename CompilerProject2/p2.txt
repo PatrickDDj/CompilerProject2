@@ -53,8 +53,11 @@ int main(){
         a--;
     }
     while(a>0);
+    a = !(a+b) + 1 * 8 == f(-a,b);
     put(a+b);
-    return (f(1,2));
+    
+    
+    return ~f(1,2);
 }
 
 
