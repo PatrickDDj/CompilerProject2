@@ -20,7 +20,7 @@ HEADER -> H_Stmts
 
 H_Stmts -> H_Stmt H_Stmts | Empty
 
-H_Stmt -> FunDef | Decl ;
+H_Stmt -> FunDef | Decl ;
 
 IF -> if ( Expr ) Block |
 
@@ -79,6 +79,7 @@ Factor -> Number | ( Expr ) | Id | FunCall
 BinOp -> == | >= | > | < | <= | + ...
 
 Number -> Decimal_Number | Octal_Number | Hexademical_Number
+
 
 
 
