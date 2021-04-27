@@ -20,13 +20,9 @@ HEADER -> H_Stmts
 
 H_Stmts -> H_Stmt H_Stmts | Empty
 
-H_Stmt -> FunDef | Decl ;
+H_Stmt -> FunDef | Decl;
 
-IF -> if ( Expr ) Block |
-
-if ( Expr ) Block ELSE |
-
-if ( Expr ) Block ELSE_IF ELSE
+IF -> if ( Expr ) Block | if ( Expr ) Block ELSE | if ( Expr ) Block ELSE_IF ELSE
 
 ELSE_IF -> else if ( Expr ) Block | else if ( Expr ) Block ELSE_IF
 
