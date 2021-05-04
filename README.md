@@ -70,11 +70,11 @@ Type -> bool | char | int | double | float | string
 
 Expr -> Factor | Factor BinOp Expr
 
-Factor -> Number | ( Expr ) | Id | FunCall
+Factor -> Number | ( Expr ) | Id | FunCall | SingOp Factor
 
 BinOp -> == | >= | > | < | <= | + ...
 
-Number -> Decimal_Number | Octal_Number | Hexademical_Number
+SingOp -> ! | ~ | - | ++ | --
 
 
 
