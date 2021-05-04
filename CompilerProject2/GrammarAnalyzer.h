@@ -54,8 +54,9 @@
 // Type -> bool | char | int | double | float | string
 
 // Expr -> Factor | Factor BinOp Expr
-// Factor -> Number | ( Expr ) | Id | FunCall
+// Factor -> Number | ( Expr ) | Id | FunCall | SingOp Factor
 // BinOp -> == | >= | > | < | <= | + ...
+// SingOp -> ! | ~ | - | ++ | --
 // Number -> Decimal_Number | Octal_Number | Hexademical_Number
 
 
@@ -109,26 +110,31 @@ public:
         PROGRAM.add_son(proc_MAIN());
     }
     
-    void draw_AST(){
-        draw_Node(PROGRAM, 0, 0);
+    void draw_AST(string AST_path){
+        ofstream AST(AST_path);
+        draw_Node(PROGRAM, 0, 0, AST);
+        AST.close();
     }
     
-    void draw_Node(Node node, int cols_before, int index){
+    void draw_Node(Node node, int cols_before, int index, ofstream &AST){
         if(index != 0){
             for(int i=0; i<cols_before; i++){
                 for(int j=0; j<Node::format_length; j++){
-                    printf("\t");
+//                    printf("    ");
+                    AST << "    ";
                 }
             }
         }
         
-        printf("%s", node.format_Component().c_str());
+//        printf("%s", node.format_Component().c_str());
+        AST << node.format_Component();
         if(node.is_terminal()){
-            printf("\n");
+//            printf("\n");
+            AST << "\n";
         }
         else{
             for(int i=0; i<node.sons.size(); i++){
-                draw_Node(node.sons[i], cols_before+1, i);
+                draw_Node(node.sons[i], cols_before+1, i, AST);
             }
         }
     }
@@ -170,7 +176,7 @@ private:
     
     bool is_SingOp(){
         string word = get_word();
-        return (word=="-" || word=="!" || word=="~");
+        return (word=="-" || word=="!" || word=="~" || word=="++" || word=="--");
     }
     
     
@@ -558,7 +564,7 @@ private:
     }
     
     
-    //Id or FunCall
+    //Id or FunCall or Id++ or Id--
     Node proc_Id(){
         if(get_next_word()=="("){
             Node FunCall("FunCall");
@@ -570,12 +576,19 @@ private:
             check_add(FunCall, ")");
             return FunCall;
         }
+        else if(get_next_word()=="++" || get_next_word()=="--"){
+            Node Factor("Factor");
+            check_add(Factor, get_word());
+            check_add(Factor, get_word());
+            return Factor;
+        }
         else{
             Node Id("Id");
             
             //create Node("a1") and add it to Node("Id")
-            Id.add_son(Node(get_word()));
-            cur++;
+//            Id.add_son(Node(get_word()));
+//            cur++;
+            check_add(Id, get_word());
             return Id;
         }
     }

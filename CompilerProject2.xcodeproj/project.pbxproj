@@ -34,6 +34,7 @@
 		D6D76C8D263807B300B453B1 /* AST3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AST3.png; sourceTree = "<group>"; };
 		D6D76C8E263807B300B453B1 /* AST2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AST2.png; sourceTree = "<group>"; };
 		D6D76C8F263807B300B453B1 /* AST1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AST1.png; sourceTree = "<group>"; };
+		D6FBAF352641691200DF337F /* AST.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = AST.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,6 +71,7 @@
 		D660C481262C1B82004B2F0D /* CompilerProject2 */ = {
 			isa = PBXGroup;
 			children = (
+				D6FBAF352641691200DF337F /* AST.txt */,
 				D6C38190262C27AE0062761C /* p1.txt */,
 				D6C3818F262C27AE0062761C /* p2.txt */,
 				D660C48A262C1B9E004B2F0D /* Defitions.h */,

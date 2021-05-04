@@ -91,6 +91,8 @@ private:
         buffer << infile.rdbuf();
 
         code = buffer.str();
+        
+        infile.close();
     }
 
 
