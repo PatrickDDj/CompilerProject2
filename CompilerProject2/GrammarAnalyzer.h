@@ -13,8 +13,10 @@
 // MAIN -> int main() Block
 // Block -> { Stmts }
 // Stmts -> Stmt Stmts | Empty
-// Stmt -> Asig_E ; | Decl ; | break ; | continue; | DO_WHILE | IF | WHILE | DO_WHILE ; |
-//                    Asig_C ; | Asig_S ; | RETURN ; | SWITCH
+// Stmt -> Asig_E ; | Asig_C ; | Asig_S ; |
+//         Decl ; | break ; | continue; |
+//         DO_WHILE | IF | WHILE | DO_WHILE ; |
+//         RETURN ; | SWITCH
 
 // HEADER -> H_Stmts
 // H_Stmts -> H_Stmt H_Stmts | Empty
@@ -27,16 +29,20 @@
 // ELSE -> else Block
 
 // WHILE -> while ( Expr ) Block
-// DO_WHILE -> do Block while ( Expr ) ;
+// DO_WHILE -> do Block while ( Expr )
 
 // SWITCH -> switch ( Expr ) { CASES DEFAULT }
 // CASES -> CASE | CASE CASES
 // CASE -> case Const : Stmts
 // DEFAULT -> default : Stmts
+// Const -> Number | true | false
 
 // RETURN -> return Expr
 
-// Asig_C -> Id Asig_Op Expr
+// Asig_C -> Id Asig_C_Op Expr
+// Asig_C_Op -> += | -= | /= | *= |
+//              ^= | &= | |= | %= |
+//              ~= | !=
 // Asig_S -> Id ++ | Id --
 // Asig_E -> Id = Expr
 
@@ -55,7 +61,9 @@
 
 // Expr -> Factor | Factor BinOp Expr
 // Factor -> Number | ( Expr ) | Id | FunCall | SingOp Factor
-// BinOp -> == | >= | > | < | <= | + ...
+// BinOp -> || ｜ && ｜ | ｜ ^ ｜ & ｜ != ｜
+//          == ｜ > ｜ >= ｜ <= ｜ < ｜ << ｜
+//          >> ｜ + ｜ - ｜ * ｜ / ｜ %
 // SingOp -> ! | ~ | - | ++ | --
 // Number -> Decimal_Number | Octal_Number | Hexademical_Number
 
