@@ -31,9 +31,6 @@
 		D6B35444262E78A100814DBB /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		D6C3818F262C27AE0062761C /* p2.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = p2.txt; sourceTree = "<group>"; };
 		D6C38190262C27AE0062761C /* p1.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = p1.txt; sourceTree = "<group>"; };
-		D6D76C8D263807B300B453B1 /* AST3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AST3.png; sourceTree = "<group>"; };
-		D6D76C8E263807B300B453B1 /* AST2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AST2.png; sourceTree = "<group>"; };
-		D6D76C8F263807B300B453B1 /* AST1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AST1.png; sourceTree = "<group>"; };
 		D6FBAF352641691200DF337F /* AST.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = AST.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -51,9 +48,6 @@
 		D660C476262C1B82004B2F0D = {
 			isa = PBXGroup;
 			children = (
-				D6D76C8F263807B300B453B1 /* AST1.png */,
-				D6D76C8E263807B300B453B1 /* AST2.png */,
-				D6D76C8D263807B300B453B1 /* AST3.png */,
 				D6B35444262E78A100814DBB /* README.md */,
 				D660C481262C1B82004B2F0D /* CompilerProject2 */,
 				D660C480262C1B82004B2F0D /* Products */,
