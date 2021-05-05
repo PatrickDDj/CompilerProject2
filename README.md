@@ -98,7 +98,8 @@ Expr -> Factor | Factor BinOp Expr
 
 Factor -> Number | ( Expr ) | Id | FunCall | SingOp Factor
 
-BinOp -> == | >= | > | < | <= | + ...
+BinOp -> || ｜ && ｜ | ｜ ^ ｜ & ｜ != ｜== ｜ > ｜ >= ｜ <= ｜ < ｜ << ｜ >> ｜ + ｜ - ｜ * ｜ / ｜ %
+
 
 SingOp -> ! | ~ | - | ++ | --
 
