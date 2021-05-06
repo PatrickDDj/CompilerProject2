@@ -15,8 +15,8 @@
 // Stmts -> Stmt Stmts | Empty
 // Stmt -> Asig_E ; | Asig_C ; | Asig_S ; |
 //         Decl ; | break ; | continue; |
-//         DO_WHILE | IF | WHILE | DO_WHILE ; |
-//         RETURN ; | SWITCH
+//         DO_WHILE ; | IF | WHILE | DO_WHILE ; |
+//         RETURN ; | SWITCH | FunCall ;
 
 // HEADER -> H_Stmts
 // H_Stmts -> H_Stmt H_Stmts | Empty
@@ -59,7 +59,7 @@
 // Desc -> Id | Asig_E
 // Type -> bool | char | int | double | float | string
 
-// Expr -> Factor | Factor BinOp Expr
+// Expr -> Factor | Expr BinOp Expr
 // Factor -> Number | ( Expr ) | Id | FunCall | SingOp Factor
 // BinOp -> || ｜ && ｜ | ｜ ^ ｜ & ｜ != ｜
 //          == ｜ > ｜ >= ｜ <= ｜ < ｜ << ｜
@@ -283,9 +283,6 @@ private:
     
     
     // FunDef -> Type FunName ( ParasDef ) Block
-    // ParasDef -> ParaDef | ParaDef , ParasDef | Empty
-    // ParaDef -> Type Id
-    
     Node proc_FunDef(){
         Node FunDef("FunDef");
         FunDef.add_son(proc_Type());
@@ -339,7 +336,7 @@ private:
 
         check_add(Block, "{");
 
-        if(!(get_word() == "}")){
+        if(!is_Stmts_End()){
             Block.add_son(proc_Stmts());
         }
         
@@ -366,23 +363,31 @@ private:
     Node proc_Stmt(){
         Node Stmt("Stmt");
         if(is_Id()){
+            // Asig_C
             if(is_Asig_C_Op(get_next_word())){
                 Stmt.add_son(proc_Asig_C());
                 check_add(Stmt, ";");
             }
+            
+            // Asig_S
             else if(get_next_word()=="++" || get_next_word()=="--"){
                 Stmt.add_son(proc_Asig_S());
                 check_add(Stmt, ";");
             }
+            
+            //Asig_E
             else if(get_next_word()=="="){
                 Stmt.add_son(proc_Asig_E());
                 check_add(Stmt, ";");
             }
+            
             //Funion Call
             else if(get_next_word()=="("){
                 Stmt.add_son(proc_Id());
                 check_add(Stmt, ";");
             }
+            
+            //error : no assignment operator
             else{
                 Stmt.add_son(proc_Id());
                 check_add(Stmt, "Assignment Operator");
@@ -390,31 +395,46 @@ private:
             }
         }
         
+        //Decl
         else if(is_Type()){
             Stmt.add_son(proc_Decl());
             check_add(Stmt, ";");
         }
+        
+        // IF
         else if(get_word() == "if"){
             Stmt.add_son(proc_IF());
         }
+        
+        // WHILE
         else if(get_word() == "while"){
             Stmt.add_son(proc_WHILE());
         }
+        
+        // DO_WHILE
         else if(get_word() == "do"){
             Stmt.add_son(proc_DO_WHILE());
             check_add(Stmt, ";");
         }
+        
+        // break ; | continue ;
         else if(get_word() == "break" || get_word() == "continue"){
             check_add(Stmt, get_word());
             check_add(Stmt, ";");
         }
+        
+        //SWITCH
         else if(get_word()=="switch"){
             Stmt.add_son(proc_SWITCH());
         }
+        
+        // RETURN
         else if(get_word() == "return"){
             Stmt.add_son(proc_RETURN());
             check_add(Stmt, ";");
         }
+        
+        // error : illegal statement
         else{
             check_add(Stmt, "Legal Statement Word");
             cur++;
@@ -424,8 +444,8 @@ private:
 
     
     // IF -> if ( Expr ) Block |
-    //       if ( Expr ) Block else Block |
-    //       if ( Expr ) Block ELSE_IF else Block
+    //       if ( Expr ) Block ELSE |
+    //       if ( Expr ) Block ELSE_IF ELSE
     Node proc_IF(){
         Node IF("IF");
         
@@ -448,6 +468,32 @@ private:
             IF.add_son(proc_ELSE());
         }
         return IF;
+    }
+    
+    // ELSE -> else Block
+    Node proc_ELSE(){
+        Node ELSE("ELSE");
+        
+        check_add(ELSE, "else");
+
+        ELSE.add_son(proc_Block());
+        
+        return ELSE;
+    }
+    
+    // ELSE_IF -> else if ( Expr ) Block | else if ( Expr ) Block ELSE_IF
+    Node proc_ELSE_IF(){
+        Node ELSE_IF("ELSE_IF");
+        
+        check_add(ELSE_IF, "else if");
+        check_add(ELSE_IF, "(");
+        
+        ELSE_IF.add_son(proc_Expr());
+        
+        check_add(ELSE_IF, ")");
+        
+        ELSE_IF.add_son(proc_Block());
+        return ELSE_IF;
     }
     
     // WHILE -> while ( Expr ) Block
@@ -478,31 +524,7 @@ private:
         return DO_WHILE;
     }
     
-    // ELSE -> else Block
-    Node proc_ELSE(){
-        Node ELSE("ELSE");
-        
-        check_add(ELSE, "else");
-
-        ELSE.add_son(proc_Block());
-        
-        return ELSE;
-    }
     
-    // ELSE_IF -> else if ( Expr ) Block | else if ( Expr ) Block ELSE_IF
-    Node proc_ELSE_IF(){
-        Node ELSE_IF("ELSE_IF");
-        
-        check_add(ELSE_IF, "else if");
-        check_add(ELSE_IF, "(");
-        
-        ELSE_IF.add_son(proc_Expr());
-        
-        check_add(ELSE_IF, ")");
-        
-        ELSE_IF.add_son(proc_Block());
-        return ELSE_IF;
-    }
     
     Node proc_Type(){
         Node Type("Type");
@@ -515,9 +537,7 @@ private:
     Node proc_Decl(){
         Node Decl("Decl");
         
-        if(is_Type()){
-            Decl.add_son(proc_Type());
-        }
+        Decl.add_son(proc_Type());
         Decl.add_son(proc_Descs());
         
         return Decl;
@@ -559,6 +579,7 @@ private:
         return Paras;
     }
     
+    //Para -> Expr
     Node proc_Para(){
         Node Para("Para");
         Para.add_son(proc_Expr());
@@ -592,10 +613,7 @@ private:
         }
         else{
             Node Id("Id");
-            
             //create Node("a1") and add it to Node("Id")
-//            Id.add_son(Node(get_word()));
-//            cur++;
             check_add(Id, get_word());
             return Id;
         }
@@ -630,9 +648,7 @@ private:
     Node proc_Asig_E(){
         Node Asig_E("Asig_E");
         
-        if(is_Id()){
-            Asig_E.add_son(proc_Id());
-        }
+        Asig_E.add_son(proc_Id());
         
         check_add(Asig_E, "=");
 
@@ -690,32 +706,41 @@ private:
     }
     
     
-    // Expr -> Factor | Factor BinOp Expr
-    
+    // Expr -> Factor | Expr BinOp Expr
     Node proc_Expr(){
         Node LHS = proc_Factor();
+        // no operator ahead, so pass Prev_Prec=0 to RHS
         return proc_RHS(LHS, 0);
     }
     
-    Node proc_RHS(Node &LHS, int Expr_Prec){
+    Node proc_RHS(Node &LHS, int Prev_Prec){
         while(true){
+            // get the current operator and its precedence
             string op = get_word();
             int cur_Prec = Op_Precedence[op];
             
-            
-            if(cur_Prec <= Expr_Prec){
+            // if the previous operator is prior to or equal to the current one
+            // then then LHS must be viewed as a whole calculation unit
+            if(cur_Prec <= Prev_Prec){
                 return LHS;
             }
+            
+            // get the next Factor
             cur++;
             Node RHS = proc_Factor();
             
+            // get the next operator and its precedence
             string next_op = get_word();
-            
             int next_Prec = Op_Precedence[next_op];
             
+            // if the next operator is prior to the current one
+            // then use recursive method to get the corrent RHS
+            // pass the current operator's precedence to the recursion function
             if(next_Prec > cur_Prec){
                 RHS = proc_RHS(RHS, cur_Prec);
             }
+            
+            // merge LHS, op and RHS
             Node BinOp = Node(op);
             LHS = merge(LHS, BinOp, RHS);
         }
@@ -774,9 +799,8 @@ private:
         Node DEFAULT("DEFAULT");
         check_add(DEFAULT, "default");
         check_add(DEFAULT, ":");
-        if(get_word()!="}"){
-            DEFAULT.add_son(proc_Stmts());
-        }
+        DEFAULT.add_son(proc_Stmts());
+
         return DEFAULT;
     }
     

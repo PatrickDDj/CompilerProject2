@@ -94,12 +94,11 @@ Desc -> Id | Asig_E
 
 Type -> bool | char | int | double | float | string
 
-Expr -> Factor | Factor BinOp Expr
+Expr -> Factor | Expr BinOp Expr
 
 Factor -> Number | ( Expr ) | Id | FunCall | SingOp Factor
 
 BinOp -> || ｜ && ｜ | ｜ ^ ｜ & ｜ != ｜== ｜ > ｜ >= ｜ <= ｜ < ｜ << ｜ >> ｜ + ｜ - ｜ * ｜ / ｜ %
-
 
 SingOp -> ! | ~ | - | ++ | --
 
