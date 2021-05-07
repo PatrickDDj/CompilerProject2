@@ -87,11 +87,11 @@ public:
         sons.push_back(son);
     }
     
-    bool is_terminal(){
+    bool is_terminal() const {
         return sons.size() == 0;
     }
     
-    string format_Component(){
+    string format_Component() const {
         string f_Component = Component;
         while(f_Component.length() < 4*format_length){
             f_Component += is_terminal()?" ":"-";
@@ -118,31 +118,28 @@ public:
         PROGRAM.add_son(proc_MAIN());
     }
     
-    void draw_AST(string AST_path){
+    void draw_AST(string AST_path) const{
         ofstream AST(AST_path);
-        draw_Node(PROGRAM, 0, 0, AST);
+        draw_Node(PROGRAM, 0, true, AST);
         AST.close();
     }
     
-    void draw_Node(Node node, int cols_before, int index, ofstream &AST){
-        if(index != 0){
-            for(int i=0; i<cols_before; i++){
+    void draw_Node(const Node& node, int cols_off, bool is_first, ofstream &AST) const{
+        if(!is_first){
+            for(int i=0; i<cols_off; i++){
                 for(int j=0; j<Node::format_length; j++){
-//                    printf("    ");
+                    // 4 space(" ")
                     AST << "    ";
                 }
             }
         }
-        
-//        printf("%s", node.format_Component().c_str());
         AST << node.format_Component();
         if(node.is_terminal()){
-//            printf("\n");
             AST << "\n";
         }
         else{
             for(int i=0; i<node.sons.size(); i++){
-                draw_Node(node.sons[i], cols_before+1, i, AST);
+                draw_Node(node.sons[i], cols_off+1, (i==0), AST);
             }
         }
     }
@@ -171,8 +168,10 @@ private:
         }
         else{
             
-            node.add_son(Node("Error("+get_word()+")"));
-            printf("[ERROR] Miss %s before '%s' [%s] - [%s]\n", symbol.c_str(), get_word().c_str(), lex_result[cur].first[1].c_str(), lex_result[cur].first[2].c_str());
+            node.add_son(Node("Error("+symbol+")"));
+            cur--;
+            printf("[ERROR] Miss %s after '%s' [%s] - [%s]\n", symbol.c_str(), get_word().c_str(), lex_result[cur].first[1].c_str(), lex_result[cur].first[2].c_str());
+            cur++;
         }
     }
     
@@ -362,6 +361,7 @@ private:
     //          WHILE | DO_WHILE ; | GET ; | PUT ; | Asig_C ; | Asig_S ; | RETURN ;
     Node proc_Stmt(){
         Node Stmt("Stmt");
+//        cout << get_word() << endl;
         if(is_Id()){
             // Asig_C
             if(is_Asig_C_Op(get_next_word())){
@@ -391,7 +391,6 @@ private:
             else{
                 Stmt.add_son(proc_Id());
                 check_add(Stmt, "Assignment Operator");
-                cur++;
             }
         }
         
@@ -436,7 +435,7 @@ private:
         
         // error : illegal statement
         else{
-            check_add(Stmt, "Legal Statement Word");
+            check_add(Stmt, "Statement Word");
             cur++;
         }
         return Stmt;
@@ -834,12 +833,10 @@ private:
     Node proc_Asig_S(){
         Node Asig_S("Asig_S");
         
-        if(is_Id()){
-            Asig_S.add_son(proc_Id());
-        }
-        if(get_word()=="++" || get_word()=="--"){
-            check_add(Asig_S, get_word());
-        }
+
+        Asig_S.add_son(proc_Id());
+
+
         return Asig_S;
     }
 };

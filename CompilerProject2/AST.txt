@@ -10,11 +10,6 @@ PROGRAM-HEADER--H_Stmts-H_Stmt--FunDef--Type----void
                                                                                                 Factor--Number--1       
                                                                 ;       
                                                 }       
-                        H_Stmt--Decl----Type----int     
-                                        Descs---Desc----Asig_E--Id------a       
-                                                                =       
-                                                                Factor--Number--1       
-                                ;       
                         H_Stmt--FunDef--Type----int     
                                         FunName-f       
                                         (       
@@ -25,64 +20,45 @@ PROGRAM-HEADER--H_Stmts-H_Stmt--FunDef--Type----void
                                                         Id------b       
                                         )       
                                         Block---{       
-                                                Stmts---Stmt----RETURN--return  
-                                                                        Expr----Factor--Id------a       
+                                                Stmts---Stmt----Decl----Type----int     
+                                                                        Descs---Desc----Asig_E--Id------t       
+                                                                                                =       
+                                                                                                Expr----Factor--Id------a       
+                                                                                                        *       
+                                                                                                        Factor--Id------b       
+                                                                ;       
+                                                        Stmt----RETURN--return  
+                                                                        Expr----Expr----Factor--Id------t       
+                                                                                        +       
+                                                                                        Factor--Id------a       
                                                                                 +       
                                                                                 Factor--Id------b       
                                                                 ;       
                                                 }       
+                        H_Stmt--Decl----Type----int     
+                                        Descs---Desc----Asig_E--Id------a       
+                                                                =       
+                                                                Factor--Number--1       
+                                ;       
         MAIN----int     
                 main    
                 (       
                 )       
                 Block---{       
-                        Stmts---Stmt----SWITCH--switch  
-                                                (       
-                                                Factor--Id------a       
-                                                )       
-                                                {       
-                                                CASES---CASE----case    
-                                                                Const---Number--1       
-                                                                :       
-                                                                Stmts---Stmt----FunCall-FunName-f       
-                                                                                        (       
-                                                                                        Paras---Para----Factor--Id------a       
-                                                                                                ,       
-                                                                                                Para----Factor--Id------b       
-                                                                                        )       
-                                                                                ;       
-                                                                        Stmt----Asig_E--Id------a       
-                                                                                        =       
-                                                                                        Factor--Number--1       
-                                                                                ;       
-                                                                        Stmt----break   
-                                                                                ;       
-                                                        CASE----case    
-                                                                Const---Number--2       
-                                                                :       
-                                                                Stmts---Stmt----Asig_E--Id------a       
-                                                                                        =       
-                                                                                        Factor--Number--3       
-                                                                                ;       
-                                                DEFAULT-default 
-                                                        :       
-                                                        Stmts---Stmt----Asig_E--Id------a       
-                                                                                =       
-                                                                                Factor--Number--7       
-                                                                        ;       
-                                                                Stmt----break   
-                                                                        ;       
-                                                }       
-                                Stmt----Decl----Type----int     
+                        Stmts---Stmt----Decl----Type----int     
                                                 Descs---Desc----Asig_E--Id------x       
                                                                         =       
                                                                         Factor--FunCall-FunName-f       
                                                                                         (       
-                                                                                        Paras---Para----Factor--Id------x       
+                                                                                        Paras---Para----Factor--Id------a       
                                                                                                 ,       
-                                                                                                Para----Factor--Id------y       
+                                                                                                Para----Factor--Number--1       
                                                                                         )       
+                                                        ,       
+                                                        Desc----Id------y       
                                         ;       
+                                Stmt----Id------a       
+                                        Error(Assignment Operator)
                                 Stmt----FunCall-FunName-g       
                                                 (       
                                                 Paras   
@@ -196,6 +172,10 @@ PROGRAM-HEADER--H_Stmts-H_Stmt--FunDef--Type----void
                                                                 Stmt----break   
                                                                         ;       
                                                         }       
+                                Stmt----Asig_C--Id------a       
+                                                +=      
+                                                Factor--Number--1       
+                                        ;       
                                 Stmt----DO_WHILEdo      
                                                 Block---{       
                                                         Stmts---Stmt----Asig_S--Factor--a       
@@ -237,6 +217,43 @@ PROGRAM-HEADER--H_Stmts-H_Stmt--FunDef--Type----void
                                                                         Factor--Id------b       
                                                 )       
                                         ;       
+                                Stmt----SWITCH--switch  
+                                                (       
+                                                Factor--Id------a       
+                                                )       
+                                                {       
+                                                CASES---CASE----case    
+                                                                Const---Number--1       
+                                                                :       
+                                                                Stmts---Stmt----FunCall-FunName-f       
+                                                                                        (       
+                                                                                        Paras---Para----Factor--Id------a       
+                                                                                                ,       
+                                                                                                Para----Factor--Id------b       
+                                                                                        )       
+                                                                                ;       
+                                                                        Stmt----Asig_E--Id------a       
+                                                                                        =       
+                                                                                        Factor--Number--1       
+                                                                                ;       
+                                                                        Stmt----break   
+                                                                                ;       
+                                                        CASE----case    
+                                                                Const---Number--2       
+                                                                :       
+                                                                Stmts---Stmt----Asig_E--Id------a       
+                                                                                        =       
+                                                                                        Factor--Number--3       
+                                                                                ;       
+                                                DEFAULT-default 
+                                                        :       
+                                                        Stmts---Stmt----Asig_E--Id------a       
+                                                                                =       
+                                                                                Factor--Number--7       
+                                                                        ;       
+                                                                Stmt----break   
+                                                                        ;       
+                                                }       
                                 Stmt----RETURN--return  
                                                 Factor--~       
                                                         Factor--FunCall-FunName-f       
@@ -245,5 +262,5 @@ PROGRAM-HEADER--H_Stmts-H_Stmt--FunDef--Type----void
                                                                                 ,       
                                                                                 Para----Factor--Number--2       
                                                                         )       
-                                        ;       
+                                        Error(;)
                         }       

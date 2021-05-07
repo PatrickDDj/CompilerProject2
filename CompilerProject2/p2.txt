@@ -2,14 +2,50 @@ void g(){
     int x= 1;
 }
 
-int a = 1;
-
 int f(int a, int b){
-    return a+b;
+    int t = a*b;
+    return t+a+b;
 }
 
-int main(){
+int a = 1;
 
+
+int main(){
+    int x = f(a,1), y;
+    a
+    
+    g();
+    int a, b=3*(11+2)+3/4;
+    a = 12 + (x++) == !(2 + 3 > 1) * 4 - 1*5 -(++b);
+    a--;
+
+    a++;
+    get(a);
+    
+    if(a==1){
+        a = 2;
+    }
+    else if(a==3){
+        a = 012;
+    }
+    else{
+        a = 0x123A;
+    }
+    
+    while(true){
+        a = 3*(a+1)/4;
+        break;
+    }
+    
+    a += 1;
+    do{
+        a--;
+    }
+    while(a>0);
+    
+    a = !(a+b) + 1 * 8 == f(-a,b);
+    put(a+b);
+    
     switch (a) {
         case 1:
             f(a ,b );
@@ -22,42 +58,9 @@ int main(){
             a=7;
             break;
     }
-
-
-
-    int x = f(x,y);
-    
-    g();
-    int a, b=3*(11+2)+3/4;
-    a = 12 + (x++) == !(2 + 3 > 1) * 4 - 1*5 -(++b);
-    a--;
-
-    a++;
-    get(a);
-    if(a==1){
-        a = 2;
-    }
-    else if(a==3){
-        a = 012;
-    }
-    else{
-        a = 0x123A;
-    }
-    while(true){
-        a = 3*(a+1)/4;
-        break;
-    }
     
     
-    do{
-        a--;
-    }
-    while(a>0);
-    a = !(a+b) + 1 * 8 == f(-a,b);
-    put(a+b);
-    
-    
-    return ~f(1,2);
+    return ~f(1,2)
 }
 
 
