@@ -5,7 +5,7 @@
 //  Created by PatrickDD on 2021/4/18.
 //
 
-#include "Defitions.h"
+#include "Defines.h"
 
 #ifndef GrammarAnalyzer_h
 #define GrammarAnalyzer_h

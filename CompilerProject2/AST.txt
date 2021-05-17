@@ -262,5 +262,5 @@ PROGRAM-HEADER--H_Stmts-H_Stmt--FunDef--Type----void
                                                                                 ,       
                                                                                 Para----Factor--Number--2       
                                                                         )       
-                                        Error(;)
+                                        ;       
                         }       

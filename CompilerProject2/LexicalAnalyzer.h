@@ -9,7 +9,7 @@
 #ifndef LexicalAnalyzer_h
 #define LexicalAnalyzer_h
 
-#include "Defitions.h"
+#include "Defines.h"
 
 class LexicalAnalyzer{
     

@@ -23,9 +23,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		D62A111A26520F820099E4AF /* Defines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Defines.h; sourceTree = "<group>"; };
 		D660C47F262C1B82004B2F0D /* CompilerProject2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CompilerProject2; sourceTree = BUILT_PRODUCTS_DIR; };
 		D660C482262C1B82004B2F0D /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		D660C48A262C1B9E004B2F0D /* Defitions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Defitions.h; sourceTree = "<group>"; };
 		D660C48B262C1B9E004B2F0D /* LexicalAnalyzer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.h; fileEncoding = 4; path = LexicalAnalyzer.h; sourceTree = "<group>"; };
 		D660C48C262C1C63004B2F0D /* GrammarAnalyzer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.h; path = GrammarAnalyzer.h; sourceTree = "<group>"; };
 		D6B35444262E78A100814DBB /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -65,10 +65,10 @@
 		D660C481262C1B82004B2F0D /* CompilerProject2 */ = {
 			isa = PBXGroup;
 			children = (
+				D62A111A26520F820099E4AF /* Defines.h */,
 				D6FBAF352641691200DF337F /* AST.txt */,
 				D6C38190262C27AE0062761C /* p1.txt */,
 				D6C3818F262C27AE0062761C /* p2.txt */,
-				D660C48A262C1B9E004B2F0D /* Defitions.h */,
 				D660C48B262C1B9E004B2F0D /* LexicalAnalyzer.h */,
 				D660C482262C1B82004B2F0D /* main.cpp */,
 				D660C48C262C1C63004B2F0D /* GrammarAnalyzer.h */,
